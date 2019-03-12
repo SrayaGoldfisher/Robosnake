@@ -1,46 +1,56 @@
-#include "Adafruit_VL53L0X.h"
-Adafruit_VL53L0X loxCenter = Adafruit_VL53L0X();
-Adafruit_VL53L0X loxRight = Adafruit_VL53L0X();
-Adafruit_VL53L0X loxLeft = Adafruit_VL53L0X();
+#include <Wire.h>
+#include <VL53L0X.h>
 
-int XSHUTPin1 = 12;
-int XSHUTPin2 = 13;
-int XSHUTPin3 = 14;
+#define rightMotor 2
+#define rightMotorGND 3
+#define leftMotor 9
+#define leftMotorGND 10 
 
-#define rightMotor 9
-#define leftMotor 10
+#define XSHUT_pin4 8
+#define XSHUT_pin2 6
+#define XSHUT_pin1 5
+
+#define Sensor2_newAddress 42
+#define Sensor4_newAddress 44
+
+VL53L0X Sensor1;
+VL53L0X Sensor2;
+VL53L0X Sensor4;
 
 int numberOfPulsesOfTheRightEncoder, numberOfPulsesOfTheLeftEncoder, FULL_CIRCLE_PULSE = 748;
 float rightMotorSpeed, leftMotorSpeed, UNIT_LENGTH = 0.2, angle, WHEEL_RADIUS = 0.0575;
 float distanceFromObstacleOfCenterSensor, distanceFromObstacleOfRightSensor, distanceFromObstacleOfLeftSensor;
 
 void setup() {
-  pinMode(XSHUTPin1, OUTPUT);
-  pinMode(XSHUTPin2, OUTPUT);
-  pinMode(XSHUTPin3, OUTPUT);
-  digitalWrite(XSHUTPin1, LOW);
-  digitalWrite(XSHUTPin2, LOW);
-  digitalWrite(XSHUTPin3, LOW);
-  delay(500);
+  pinMode(XSHUT_pin1, OUTPUT);
+  pinMode(XSHUT_pin2, OUTPUT);
+  pinMode(XSHUT_pin4, OUTPUT);
   
-  pinMode(rightMotor, OUTPUT);
-  pinMode(leftMotor, OUTPUT);
-  Serial.begin(115200);
-  while (! Serial) {
-    delay(1);
-  }
-  if (!loxCenter.begin()) {
-    Serial.println(F("Failed to boot VL53L0X_CENTER"));
-    while(1);
-  }
-  if (!loxRight.begin()) {
-    Serial.println(F("Failed to boot VL53L0X_RIGRT"));
-    while(1);
-  }
-  if (!loxLeft.begin()) {
-    Serial.println(F("Failed to boot VL53L0X_LEFT"));
-    while(1);
-  }
+  Serial.begin(9600);
+  Wire.begin();
+
+  pinMode(XSHUT_pin4, INPUT);
+  delay(10);
+  Sensor4.setAddress(Sensor4_newAddress);
+
+  pinMode(XSHUT_pin2, INPUT);
+  delay(10);
+  Sensor2.setAddress(Sensor2_newAddress);
+
+  pinMode(XSHUT_pin1, INPUT);
+  delay(10);
+
+  Sensor1.init();
+  Sensor2.init();
+  Sensor4.init();
+
+  Sensor1.setTimeout(500);
+  Sensor2.setTimeout(500);
+  Sensor4.setTimeout(500);
+
+  Sensor1.startContinuous();
+  Sensor2.startContinuous();
+  Sensor4.startContinuous();
 }
 
 void keepMovingAhead() {
@@ -49,7 +59,7 @@ void keepMovingAhead() {
 }
 
 void turnRight(float rangeMotionToTheRight, float rangeMotionToTheLeft) {
-  if(rangeMotionToTheLeft < 10) {
+  if(rangeMotionToTheLeft < 50) {
     rightMotorSpeed = 0;
     leftMotorSpeed = 255;
   }
@@ -60,7 +70,7 @@ void turnRight(float rangeMotionToTheRight, float rangeMotionToTheLeft) {
 }
 
 void turnLeft(float rangeMotionToTheRight, float rangeMotionToTheLeft) {
-  if(rangeMotionToTheRight < 10) {
+  if(rangeMotionToTheRight < 50) {
     rightMotorSpeed = 255;
     leftMotorSpeed = 0;
   }
@@ -71,7 +81,7 @@ void turnLeft(float rangeMotionToTheRight, float rangeMotionToTheLeft) {
 }
 
 void navigationOfTheHead(float distanceFromObstacle, float rangeMotionToTheRight, float rangeMotionToTheLeft) {
-  if(distanceFromObstacle > 150) {
+  if(distanceFromObstacle > 200) {
     keepMovingAhead();
   }
   else {
@@ -83,27 +93,25 @@ void navigationOfTheHead(float distanceFromObstacle, float rangeMotionToTheRight
     }
   }
   analogWrite(rightMotor, rightMotorSpeed);
+  analogWrite(rightMotorGND, 0);
   analogWrite(leftMotor, leftMotorSpeed);
+  analogWrite(leftMotorGND, 0);
 }
 
 void loop() {
-  digitalWrite(XSHUTPin1, HIGH);
-  delay(150);
-  VL53L0X_RangingMeasurementData_t measure;
-  loxCenter.rangingTest(&measure, false);
-  distanceFromObstacleOfCenterSensor = measure.RangeMilliMeter;
-
-  loxRight.setAddress(0x30);
-  VL53L0X_RangingMeasurementData_t measure;
-  digitalWrite(XSHUTPin2, HIGH);
-  delay(150);
-  distanceFromObstacleOfRightSensor = measure.RangeMilliMeter;
-  
-  loxLeft.setAddress(0x31);
-  VL53L0X_RangingMeasurementData_t measure;
-  digitalWrite(XSHUTPin3, HIGH);
-  delay(150);
-  distanceFromObstacleOfLeftSensor = measure.RangeMilliMeter;
+  Serial.print('Center = ');
+  Serial.print(Sensor1.readRangeContinuousMillimeters());
+  Serial.print(',');
+  Serial.print('Left = ');
+  Serial.print(Sensor2.readRangeContinuousMillimeters());
+  Serial.print(',');
+  Serial.print('Right = ');
+  Serial.print(Sensor4.readRangeContinuousMillimeters());
+  Serial.print(',');
+  Serial.println();
+  distanceFromObstacleOfCenterSensor = Sensor1.readRangeContinuousMillimeters();
+  distanceFromObstacleOfLeftSensor = Sensor2.readRangeContinuousMillimeters();
+  distanceFromObstacleOfRightSensor = Sensor4.readRangeContinuousMillimeters();
   
   navigationOfTheHead(distanceFromObstacleOfCenterSensor, distanceFromObstacleOfRightSensor, distanceFromObstacleOfLeftSensor);
 }
