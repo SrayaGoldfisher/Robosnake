@@ -11,7 +11,7 @@ void setup() {
 }
 void loop() {
   const int num = 1234;
-  const char text[16] = itoa(num, text, 10);
+  const char text[] = "1234";
   radio.write(&text, sizeof(text));
   delay(1000);
 }

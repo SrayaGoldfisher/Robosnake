@@ -76,10 +76,10 @@ void navigationOfTheHead(float distanceFromObstacle, float rangeMotionToTheRight
   }
   else {
     if(rangeMotionToTheRight >= rangeMotionToTheLeft) {
-      turnRight();
+     // turnRight();
     }
     else {
-      turnLeft();
+    //  turnLeft();
     }
   }
   analogWrite(rightMotor, rightMotorSpeed);
