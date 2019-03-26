@@ -20,7 +20,7 @@ VL53L0X Sensor2;
 VL53L0X Sensor4;
 
 int numberOfPulsesOfTheRightEncoder, numberOfPulsesOfTheLeftEncoder, FULL_CIRCLE_PULSE = 748;
-float rightMotorSpeed, leftMotorSpeed, UNIT_LENGTH = 200, SAFETY_RANGE = 100, angle, WHEEL_RADIUS = 57.5, radiusOfObstacle;
+float rightMotorSpeed, leftMotorSpeed, UNIT_LENGTH = 200, SAFETY_RANGE = 100, angleOfTheTurn, WHEEL_RADIUS = 57.5, radiusOfObstacle, velocity = 500;
 float distanceFromObstacleOfCenterSensor, distanceFromObstacleOfRightSensor, distanceFromObstacleOfLeftSensor;
 
 void setup() {
@@ -62,27 +62,22 @@ void setup() {
 void keepMovingAhead() {
   rightMotorSpeed = 255;
   leftMotorSpeed = 255;
+  analogWrite(rightMotor, rightMotorSpeed);
+  analogWrite(rightMotorGND, 0);
+  analogWrite(leftMotor, leftMotorSpeed);
+  analogWrite(leftMotorGND, 0);
 }
 
-void turnRight(float rangeMotionToTheLeft) {
-  if(rangeMotionToTheLeft < 70) {
-    rightMotorSpeed = 0;
-    leftMotorSpeed = 255;
-  }
-  else {
-    keepMovingAhead();
-    //angle = ((numberOfPulsesOfTheLeftEncoder * WHEEL_RADIUS * 360. / FULL_CIRCLE_PULSE) * (360. / UNIT_LENGTH)) - ((numberOfPulsesOfTheRightEncoder * WHEEL_RADIUS * 360. / FULL_CIRCLE_PULSE) * (360. / UNIT_LENGTH));
-  }
-}
-
-void turnLeft(float rangeMotionToTheRight) {
-  if(rangeMotionToTheRight < 70) {
-    rightMotorSpeed = 255;
-    leftMotorSpeed = 0;
-  }
-  else {
-    keepMovingAhead();
-    //angle = ((numberOfPulsesOfTheRightEncoder * WHEEL_RADIUS * 360. / FULL_CIRCLE_PULSE) * (360. / UNIT_LENGTH)) - ((numberOfPulsesOfTheLeftEncoder * WHEEL_RADIUS * 360. / FULL_CIRCLE_PULSE) * (360. / UNIT_LENGTH));
+void turn(float radiusOfObstacle, float angleOfTheTurn) {
+  timeOfDoingTurn = (radiusOfObstacle * angleOfTheTurn) / velocity;
+  startTimeOfTheTurn = millis();
+  while((millis() - startTimeOfTheTurn) > timeOfDoingTurn) {
+    rightMotorSpeed = velocity * (60 / (2 * PI() * WHEEL_RADIUS));
+    leftMotorSpeed = velocity;
+    analogWrite(rightMotor, rightMotorSpeed);
+    analogWrite(rightMotorGND, 0);
+    analogWrite(leftMotor, leftMotorSpeed);
+    analogWrite(leftMotorGND, 0);    
   }
 }
 
@@ -91,17 +86,8 @@ void navigationOfTheHead(float distanceFromObstacle, float rangeMotionToTheRight
     keepMovingAhead();
   }
   else {
-    if(rangeMotionToTheRight >= rangeMotionToTheLeft) {
-      turnRight(distanceFromObstacleOfLeftSensor);
-    }
-    else {
-      turnLeft(distanceFromObstacleOfRightSensor);
-    }
+    turn(, );
   }
-  analogWrite(rightMotor, rightMotorSpeed);
-  analogWrite(rightMotorGND, 0);
-  analogWrite(leftMotor, leftMotorSpeed);
-  analogWrite(leftMotorGND, 0);
 }
 
 void loop() {
