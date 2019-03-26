@@ -1,3 +1,5 @@
+//units mm.k.s.
+
 #include <Wire.h>
 #include <VL53L0X.h>
 
@@ -18,7 +20,7 @@ VL53L0X Sensor2;
 VL53L0X Sensor4;
 
 int numberOfPulsesOfTheRightEncoder, numberOfPulsesOfTheLeftEncoder, FULL_CIRCLE_PULSE = 748;
-float rightMotorSpeed, leftMotorSpeed, UNIT_LENGTH = 0.2, angle, WHEEL_RADIUS = 0.0575;
+float rightMotorSpeed, leftMotorSpeed, UNIT_LENGTH = 200, SAFETY_RANGE = 100, angle, WHEEL_RADIUS = 57.5, radiusOfObstacle;
 float distanceFromObstacleOfCenterSensor, distanceFromObstacleOfRightSensor, distanceFromObstacleOfLeftSensor;
 
 void setup() {
@@ -28,7 +30,7 @@ void setup() {
   
   Serial.begin(9600);
   Wire.begin();
-
+  
   pinMode(XSHUT_pin4, INPUT);
   delay(10);
   Sensor4.setAddress(Sensor4_newAddress);
@@ -43,7 +45,7 @@ void setup() {
   Sensor1.init();
   Sensor2.init();
   Sensor4.init();
-
+  
   Sensor1.setTimeout(500);
   Sensor2.setTimeout(500);
   Sensor4.setTimeout(500);
@@ -51,6 +53,10 @@ void setup() {
   Sensor1.startContinuous();
   Sensor2.startContinuous();
   Sensor4.startContinuous();
+
+  Serial.println("Enter radius of obstacle");
+  while (Serial.available() == 0);
+  radiusOfObstacle = Serial.parseFloat();
 }
 
 void keepMovingAhead() {
@@ -58,8 +64,8 @@ void keepMovingAhead() {
   leftMotorSpeed = 255;
 }
 
-void turnRight(float rangeMotionToTheRight, float rangeMotionToTheLeft) {
-  if(rangeMotionToTheLeft < 50) {
+void turnRight(float rangeMotionToTheLeft) {
+  if(rangeMotionToTheLeft < 70) {
     rightMotorSpeed = 0;
     leftMotorSpeed = 255;
   }
@@ -69,8 +75,8 @@ void turnRight(float rangeMotionToTheRight, float rangeMotionToTheLeft) {
   }
 }
 
-void turnLeft(float rangeMotionToTheRight, float rangeMotionToTheLeft) {
-  if(rangeMotionToTheRight < 50) {
+void turnLeft(float rangeMotionToTheRight) {
+  if(rangeMotionToTheRight < 70) {
     rightMotorSpeed = 255;
     leftMotorSpeed = 0;
   }
@@ -81,15 +87,15 @@ void turnLeft(float rangeMotionToTheRight, float rangeMotionToTheLeft) {
 }
 
 void navigationOfTheHead(float distanceFromObstacle, float rangeMotionToTheRight, float rangeMotionToTheLeft) {
-  if(distanceFromObstacle > 200) {
+  if(distanceFromObstacle > (UNIT_LENGTH + SAFETY_RANGE)) {
     keepMovingAhead();
   }
   else {
     if(rangeMotionToTheRight >= rangeMotionToTheLeft) {
-     // turnRight();
+      turnRight(distanceFromObstacleOfLeftSensor);
     }
     else {
-    //  turnLeft();
+      turnLeft(distanceFromObstacleOfRightSensor);
     }
   }
   analogWrite(rightMotor, rightMotorSpeed);
@@ -99,13 +105,13 @@ void navigationOfTheHead(float distanceFromObstacle, float rangeMotionToTheRight
 }
 
 void loop() {
-  Serial.print('Center = ');
+  Serial.print("Center = ");
   Serial.print(Sensor1.readRangeContinuousMillimeters());
   Serial.print(',');
-  Serial.print('Left = ');
+  Serial.print("Left = ");
   Serial.print(Sensor2.readRangeContinuousMillimeters());
   Serial.print(',');
-  Serial.print('Right = ');
+  Serial.print("Right = ");
   Serial.print(Sensor4.readRangeContinuousMillimeters());
   Serial.print(',');
   Serial.println();

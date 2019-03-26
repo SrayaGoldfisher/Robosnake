@@ -33,7 +33,7 @@ void setup()
   pinMode(XSHUT_pin5, OUTPUT);
   
   Serial.begin(9600);
-  
+    Serial.println("begin");
   Wire.begin();
   //Change address of sensor and power up next one
   Sensor6.setAddress(Sensor6_newAddress);
