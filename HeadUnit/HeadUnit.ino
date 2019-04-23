@@ -3,6 +3,7 @@
 #include <Wire.h>
 #include <VL53L0X.h>
 #include <SPI.h>
+#include "MPU9250.h"
 
 #define rightMotor 5
 #define rightMotorGND 6
@@ -23,7 +24,8 @@ IntervalTimer PidTimerRight;
 VL53L0X Sensor1;
 VL53L0X Sensor2;
 VL53L0X Sensor4;
-
+MPU9250 IMU(Wire, 0x68);
+int status;
 bool IsTurn = 0;
 long Timeofdetaction = 0;
 int  FULL_CIRCLE_PULSE = 374;
@@ -35,8 +37,8 @@ long dt = 0;
 long t0 = 0;
 long dt2 = 0;
 long t02 = 0;
-float NeedVelocityRightWheelMS = 0.4;
-float NeedVelocityLeftWheelMS = 0.4;
+float NeededVelocityRightWheelMS = 0.4;
+float NeededVelocityLeftWheelMS = 0.4;
 float VelocityRightWheelMS = 0;
 float VelocityLeftWheelMS = 0;
 float KiLeft = 100;
@@ -60,10 +62,10 @@ float PRight = 0;
 double IRight = 0;
 int URight = 0;
 long ts_0 = 0;
-
-
+float StartAngle = 0;
+float Angle = 0;
 void setup() {
-
+  status = IMU.begin();
   pinMode(XSHUT_pin1, OUTPUT);
   pinMode(XSHUT_pin2, OUTPUT);
   pinMode(XSHUT_pin4, OUTPUT);
@@ -123,35 +125,39 @@ void setup() {
   //  Encoder legs
   pinMode(8, INPUT);
   pinMode(32, INPUT);
-
+  if (status > 0)
+    StartAngle = IMU.getAccelZ_mss();
   radiusOfObstacle = 0.1;
   Timeofdetaction = millis();
   //PID Interrupts
   PidTimerLeft.begin(PidLeft, 1000); //1 millis
   PidTimerRight.begin(PidRight, 1000);
 }
-
 //Nevigation
 void loop()
 {
-  if (millis() - Timeofdetaction > 5)
-  { distanceFromObstacleOfCenterSensor = Sensor2.readRangeContinuousMillimeters();
-    if (distanceFromObstacleOfCenterSensor > (UNIT_LENGTH + SAFETY_RANGE) * 1000)
-    {
-      keepMovingAhead();
-      IsTurn = 0;
+  if (millis() - Timeofdetaction > 1)
+  {
+    Angle = cos(IMU.getAccelZ_mss() / StartAngle);
+    if (Angle > 0.9)
+    { distanceFromObstacleOfCenterSensor = Sensor2.readRangeContinuousMillimeters();
+      if (distanceFromObstacleOfCenterSensor > (UNIT_LENGTH + SAFETY_RANGE) * 1000)
+      {
+        keepMovingAhead();
+        IsTurn = 0;
+      }
+      else
+      {
+        distanceFromObstacleOfRightSensor = Sensor1.readRangeContinuousMillimeters();
+        distanceFromObstacleOfLeftSensor = Sensor4.readRangeContinuousMillimeters();
+        if (!IsTurn)
+          turn();
+      }
+      Timeofdetaction = millis();
     }
-    else
-    {
-      distanceFromObstacleOfRightSensor = Sensor1.readRangeContinuousMillimeters();
-      distanceFromObstacleOfLeftSensor = Sensor4.readRangeContinuousMillimeters();
-      if (!IsTurn)
-        turn();
-    }
-    Timeofdetaction = millis();
-  }
 
- 
+
+  }
 }
 
 
@@ -161,18 +167,18 @@ void PidLeft()
   ILeft = ILeft + ErrorLeft * 0.001;
   DLeft = KdLeft * (ErrorLeft - PreviousErrorLeft) / 0.001;
   PLeft = KpLeft * ErrorLeft;
-  ULeft= PLeft +  DLeft  + KiLeft * ILeft ;
+  ULeft = PLeft +  DLeft  + KiLeft * ILeft ;
   if (ULeft > 0)
   { if (ULeft > 8191)
       ULeft = 8191;
     analogWrite(leftMotorGND, LOW);
     analogWrite(leftMotor, (int)ULeft);
   }
-  if (ULeft<= 0)
+  if (ULeft <= 0)
   {
-    ULeft= -ULeft;
-    if (ULeft> 8191)
-    ULeft= 8191;
+    ULeft = -ULeft;
+    if (ULeft > 8191)
+      ULeft = 8191;
     analogWrite(leftMotorGND, (int)ULeft);
     analogWrite(leftMotor, LOW);
   }
@@ -252,7 +258,7 @@ void turn()
   if (distanceFromObstacleOfRightSensor > distanceFromObstacleOfLeftSensor)
     VelocityRightWheelMS = velocity + 0.1;
   VelocityLeftWheelMS = velocity - 0.1;
-  if (distanceFromObstacleOfRightSensor = < distanceFromObstacleOfLeftSensor)
+  if (distanceFromObstacleOfRightSensor <= distanceFromObstacleOfLeftSensor)
     VelocityLeftWheelMS = velocity + 0.1;
   VelocityRightWheelMS = velocity - 0.1;
   IsTurn = 1;

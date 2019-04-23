@@ -1,7 +1,10 @@
+#include <Queue.h>
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <Wire.h>
 #include <SPI.h>
+#define UnitNumber 1
 
 #define rightMotor 5
 #define rightMotorGND 6
@@ -11,18 +14,20 @@
 //Timer Interrupts PID Control
 IntervalTimer PidTimerLeft;
 IntervalTimer PidTimerRight;
-
+//Timer Interrupts updating velocity
+IntervalTimer  VelocityChangeTimer;
 int  FULL_CIRCLE_PULSE = 374;
 float  UNIT_LENGTH = 0.2, SAFETY_RANGE = 0.3, WHEEL_RADIUS = 0.06, radiusOfObstacle, velocity = 0.4;
 float distanceFromObstacleOfCenterSensor, distanceFromObstacleOfRightSensor, distanceFromObstacleOfLeftSensor;
 long PulseCounterRight = 0;
 long PulseCounterLeft = 0;
+long Timeofdetaction;
 long dt = 0;
 long t0 = 0;
 long dt2 = 0;
 long t02 = 0;
-float NeedVelocityRightWheelMS = 0.4;
-float NeedVelocityLeftWheelMS = 0.4;
+float NeededVelocityRightWheelMS = 0.4;
+float NeededVelocityLeftWheelMS = 0.4;
 float VelocityRightWheelMS = 0;
 float VelocityLeftWheelMS = 0;
 float KiLeft = 100;
@@ -46,10 +51,18 @@ float PRight = 0;
 double IRight = 0;
 int URight = 0;
 long ts_0 = 0;
-
+char SerialIndex = ' ';
+Queue<float> LeftVelocityqueue = Queue<float>(UnitNumber * 100);
+  Queue<float> RightVelocityqueue = Queue<float>(UnitNumber * 100);
 
 void setup() {
-
+//  fill the queue in the start
+  int i=0;
+  while (i<(UnitNumber * 100-2))
+  {
+    LeftVelocityqueue.push(0);
+    RightVelocityqueue.push(0);
+  }
 
   // comunication
   Serial.begin(115200);
@@ -57,7 +70,7 @@ void setup() {
   SPI.begin();
   Wire.begin();
   Wire.setClock(3000000);
- 
+
   //Interrupts-Encoder
   attachInterrupt(digitalPinToInterrupt(7), en1_1 , FALLING);
   attachInterrupt(digitalPinToInterrupt(25), en2_1 , RISING);
@@ -88,33 +101,43 @@ void setup() {
   //PID Interrupts
   PidTimerLeft.begin(PidLeft, 1000); //1 millis
   PidTimerRight.begin(PidRight, 1000);
+  VelocityChangeTimer.begin(VelocityChange, 10000);
 }
-
-//Nevigation
 void loop()
 {
- 
+  if (Serial.available())
+    SerialIndex = Serial.read();
+
+  if (SerialIndex == 'l')
+    LeftVelocityqueue.push(Serial.parseFloat());
+    if (SerialIndex == 'r')
+    RightVelocityqueue.push(Serial.parseFloat());
+
 }
 
-
+void VelocityChange()
+{
+  NeededVelocityLeftWheelMS = LeftVelocityqueue.pop();
+  NeededVelocityRightWheelMS = RightVelocityqueue.pop();
+}
 void PidLeft()
 {
   ErrorLeft = NeededVelocityLeftWheelMS - VelocityLeftWheelMS;
   ILeft = ILeft + ErrorLeft * 0.001;
   DLeft = KdLeft * (ErrorLeft - PreviousErrorLeft) / 0.001;
   PLeft = KpLeft * ErrorLeft;
-  ULeft= PLeft +  DLeft  + KiLeft * ILeft ;
+  ULeft = PLeft +  DLeft  + KiLeft * ILeft ;
   if (ULeft > 0)
   { if (ULeft > 8191)
       ULeft = 8191;
     analogWrite(leftMotorGND, LOW);
     analogWrite(leftMotor, (int)ULeft);
   }
-  if (ULeft<= 0)
+  if (ULeft <= 0)
   {
-    ULeft= -ULeft;
-    if (ULeft> 8191)
-    ULeft= 8191;
+    ULeft = -ULeft;
+    if (ULeft > 8191)
+      ULeft = 8191;
     analogWrite(leftMotorGND, (int)ULeft);
     analogWrite(leftMotor, LOW);
   }
