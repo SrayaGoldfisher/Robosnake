@@ -20,12 +20,7 @@
 //Timer Interrupts PID Control
 IntervalTimer PidTimerLeft;
 IntervalTimer PidTimerRight;
-//Lidar
-VL53L0X Sensor1;
-VL53L0X Sensor2;
-VL53L0X Sensor4;
-MPU9250 IMU(Wire, 0x68);
-int status;
+
 bool IsTurn = 0;
 long Timeofdetaction = 0;
 int  FULL_CIRCLE_PULSE = 374;
@@ -65,45 +60,15 @@ long ts_0 = 0;
 float StartAngle = 0;
 float Angle = 0;
 void setup() {
-  status = IMU.begin();
-  pinMode(XSHUT_pin1, OUTPUT);
-  pinMode(XSHUT_pin2, OUTPUT);
-  pinMode(XSHUT_pin4, OUTPUT);
-  // comunication
   Serial.begin(115200);
   Serial1.begin(115200);
-  SPI.begin();
+
   Wire.begin();
   Wire.setClock(3000000);
-  //Change address of sensor and power up next one
-  pinMode(XSHUT_pin4, INPUT);
-  delay(10);
-  Sensor4.setAddress(Sensor4_newAddress);
-  pinMode(XSHUT_pin2, INPUT);
-  delay(10);
-  Sensor2.setAddress(Sensor2_newAddress);
-  pinMode(XSHUT_pin1, INPUT);
-  delay(10);
-  Sensor1.setAddress(Sensor1_newAddress);
-  delay(20);
-  Sensor1.init();
-  Sensor2.init();
-  Sensor4.init();
 
-  Sensor1.setTimeout(500);
-  Sensor2.setTimeout(500);
-  Sensor4.setTimeout(500);
-
-  // Start continuous back-to-back mode (take readings as
-  // fast as possible).  To use continuous timed mode
-  // instead, provide a desired inter-measurement period in
-  // ms (e.g. sensor.startContinuous(100)).
-  Sensor1.startContinuous();
-  Sensor2.startContinuous();
-  Sensor4.startContinuous();
   //Interrupts-Encoder
-  attachInterrupt(digitalPinToInterrupt(7), en1_1 , FALLING);
-  attachInterrupt(digitalPinToInterrupt(25), en2_1 , RISING);
+  attachInterrupt(digitalPinToInterrupt(7), en1_1 , RISING);
+  attachInterrupt(digitalPinToInterrupt(22), en2_1 , RISING);
   //PWM Frequency
   analogWriteFrequency(rightMotor, 5000);
   analogWriteFrequency(rightMotorGND, 5000);
@@ -124,57 +89,53 @@ void setup() {
 
   //  Encoder legs
   pinMode(8, INPUT);
-  pinMode(32, INPUT);
-  if (status > 0)
-    StartAngle = IMU.getAccelZ_mss();
-  radiusOfObstacle = 0.1;
+  pinMode(23, INPUT);
   Timeofdetaction = millis();
   //PID Interrupts
   PidTimerLeft.begin(PidLeft, 1000); //1 millis
   PidTimerRight.begin(PidRight, 1000);
+    Serial.println("start");
+  Serial1.println("start");
+
 }
-//Nevigation
+long TimeRun = millis();
+
 void loop()
 {
-  if (millis() - Timeofdetaction > 1)
-  {
-    Angle = cos(IMU.getAccelZ_mss() / StartAngle);
-    if (Angle > 0.9)
-    { distanceFromObstacleOfCenterSensor = Sensor2.readRangeContinuousMillimeters();
-      if (distanceFromObstacleOfCenterSensor > (UNIT_LENGTH + SAFETY_RANGE) * 1000)
-      {
-        keepMovingAhead();
-        IsTurn = 0;
-      }
-      else
-      {
-        distanceFromObstacleOfRightSensor = Sensor1.readRangeContinuousMillimeters();
-        distanceFromObstacleOfLeftSensor = Sensor4.readRangeContinuousMillimeters();
-        if (!IsTurn)
-          turn();
-      }
-      Timeofdetaction = millis();
-    }
-
-
+  if(millis() -Timeofdetaction >30){
+  Timeofdetaction=millis();
+  Serial.print(millis());
+  Serial.print("  ");
+  Serial.print(TimeRun);
+  Serial.print("  ");
+  Serial.print(VelocityLeftWheelMS);//NeededVelocityRightWheelMS);
+  Serial.print("  ");
+  Serial.println(ULeft);//NeededVelocityLeftWheelMS);
   }
+  while ((millis() - TimeRun) <= 10000)
+  { 
+    NeededVelocityLeftWheelMS = 0.5;
+    NeededVelocityRightWheelMS = 0.5;
+    //Serial.print(NeededVelocityRightWheelMS);
+    // Serial.println(NeededVelocityLeftWheelMS);
+  }
+  NeededVelocityLeftWheelMS = 0;
+  NeededVelocityRightWheelMS = 0;
 }
-
-
 void PidLeft()
 {
   ErrorLeft = NeededVelocityLeftWheelMS - VelocityLeftWheelMS;
-  ILeft = ILeft + ErrorLeft * 0.001;
+  ILeft = (ILeft + ErrorLeft * 0.001)*(NeededVelocityLeftWheelMS!=0);
   DLeft = KdLeft * (ErrorLeft - PreviousErrorLeft) / 0.001;
   PLeft = KpLeft * ErrorLeft;
-  ULeft = PLeft +  DLeft  + KiLeft * ILeft ;
-  if (ULeft > 0)
+  ULeft = PLeft +  DLeft + KiLeft * ILeft ;
+  if (ULeft >= 0)
   { if (ULeft > 8191)
       ULeft = 8191;
     analogWrite(leftMotorGND, LOW);
     analogWrite(leftMotor, (int)ULeft);
   }
-  if (ULeft <= 0)
+  if (ULeft < 0)
   {
     ULeft = -ULeft;
     if (ULeft > 8191)
@@ -189,7 +150,7 @@ void PidLeft()
 void PidRight()
 {
   ErrorRight = NeededVelocityRightWheelMS - VelocityRightWheelMS;
-  IRight = IRight + ErrorRight * 0.001;
+  IRight = (IRight + ErrorRight * 0.001)*(NeededVelocityRightWheelMS!=0);
   DRight = KdRight * (ErrorRight - PreviousErrorRight) / 0.001;
   PRight = KpRight * ErrorRight;
   URight =  PRight + DRight  + KiRight * IRight  ;
@@ -218,12 +179,12 @@ void en1_1() {
   t0 = micros();
   if (!digitalRead(8))
   { PulseCounterRight++;
-    VelocityRightWheelMS = 1567.9963333424992990544387652732 / dt;
+    VelocityRightWheelMS = -1567.9963333424992990544387652732 / dt;
 
   }
   if (digitalRead(8))
   { PulseCounterRight--;
-    VelocityRightWheelMS = -1567.9963333424992990544387652732 / dt;
+    VelocityRightWheelMS = 1567.9963333424992990544387652732 / dt;
 
   }
 
@@ -233,34 +194,16 @@ void en1_1() {
 void en2_1() {
   dt2 =  micros() - t02;
   t02 = micros();
-  if (!digitalRead(32))
+  if (!digitalRead(23))
   { PulseCounterLeft++;
 
-    VelocityLeftWheelMS = 1567.9963333424992990544387652732 / dt2;
-
-  }
-  if (digitalRead(32))
-
-  { PulseCounterLeft--;
     VelocityLeftWheelMS = -1567.9963333424992990544387652732 / dt2;
 
   }
-}
+  if (digitalRead(23))
 
-void keepMovingAhead()
-{
-  VelocityRightWheelMS = velocity;
-  VelocityLeftWheelMS = velocity;
-}
+  { PulseCounterLeft--;
+    VelocityLeftWheelMS = 1567.9963333424992990544387652732 / dt2;
 
-void turn()
-{
-  if (distanceFromObstacleOfRightSensor > distanceFromObstacleOfLeftSensor)
-    VelocityRightWheelMS = velocity + 0.1;
-  VelocityLeftWheelMS = velocity - 0.1;
-  if (distanceFromObstacleOfRightSensor <= distanceFromObstacleOfLeftSensor)
-    VelocityLeftWheelMS = velocity + 0.1;
-  VelocityRightWheelMS = velocity - 0.1;
-  IsTurn = 1;
+  }
 }
-
