@@ -51,8 +51,8 @@ long dt = 0;
 long t0 = 0;
 long dt2 = 0;
 long t02 = 0;
-float NeededVelocityRightWheelMS = 0.5;
-float NeededVelocityLeftWheelMS = 0.5;
+float NeededVelocityRightWheelMS = 0;
+float NeededVelocityLeftWheelMS = 0;
 float VelocityRightWheelMS = 0;
 float VelocityLeftWheelMS = 0;
 float KiLeft = 100;
@@ -236,15 +236,14 @@ void loop()
        Serial.print("  ");
        Serial.println((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
   }
-  while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 3)
+  while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 3.5)
   {NeededAngle = -45;
        Serial.print((PulseCounterLeft + PulseCounterRight) / 2);
        Serial.print("  ");
        Serial.println((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
-  
     //NeededAngle = -45;
   }
-  NeededAngle = 90;
+ /* NeededAngle = 90;
   while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 5)
   {
     //    NeededAngle = 90;
@@ -260,10 +259,12 @@ void loop()
     //    NeededAngle = 270;
   }
   NeededAngle = 360;
-
+*/
   while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 12.2)
-  {
-    NeededAngle = 360;
+  {NeededAngle = 0;
+       Serial.print((PulseCounterLeft + PulseCounterRight) / 2);
+       Serial.print("  ");
+       Serial.println((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
     TimeRun = millis();
   }
 
