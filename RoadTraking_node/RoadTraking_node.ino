@@ -58,7 +58,7 @@ float VelocityRightWheelMS = 0;
 float VelocityLeftWheelMS = 0;
 float KiLeft = 100;
 float KpLeft = 32509;
-long t0l, ton;
+long t0l;
 float KdLeft = 0;
 float ErrorLeft;
 float PreviousErrorLeft = 0;
@@ -221,14 +221,7 @@ void loop()
     Serial.println(dataReceived);
     radio.startListening();
   }
-  if (dataReceived == 100 && flag) {
-    flag = 0;
-    ton = millis();
-  }
-  if (millis() - ton < 5000 && flag == 0) {
-    digitalWrite(17, HIGH);
-  } else
-    digitalWrite(17, LOW);
+  
 
   while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 1 + UnitNumber)
   {
