@@ -15,12 +15,16 @@ void setup() {
   radio.setChannel(110);
   radio.openReadingPipe(1, addresses[nodeNum-1]);
   radio.startListening();
-  Serial.println("reciver..hiii");
+  Serial.println(1);
+    Serial.println("reciver..hiii");
+
   pinMode(7, OUTPUT);
 
 }
 
 void loop() {
+     // Serial.println("reciver..hiii");
+
   if ( radio.available())
   {
     while (radio.available())
