@@ -1,14 +1,9 @@
-/**road traking node 2-5
-resiver 
-*/
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <Wire.h>
 #include <SPI.h>
 #include "MPU9250.h"
 #include "EEPROM.h"
-#include "RF24.h"
-
 
 #define rightMotor 5
 #define rightMotorGND 6
@@ -17,12 +12,6 @@ resiver
 MPU9250 Imu(Wire, 0x68);
 int status;
 
-RF24 radio(4,3);
-int dataReceived;
-int nodeNum = 1; //need to bo 1-5
-uint8_t addresses[][6] = {"1Node","2Node","3Node","4Node","5Node"};
-int flag = 1;
-int flagstart=0;
 // EEPROM buffer and variables to load accel and mag bias
 // and scale factors from CalibrateMPU9250.ino
 bool off = 0;
@@ -58,7 +47,7 @@ float VelocityRightWheelMS = 0;
 float VelocityLeftWheelMS = 0;
 float KiLeft = 100;
 float KpLeft = 32509;
-long t0l, ton;
+long t0l;
 float KdLeft = 0;
 float ErrorLeft;
 float PreviousErrorLeft = 0;
@@ -185,16 +174,6 @@ void setup() {
   Serial.println("start");
   Serial1.println("start");
 
-  radio.begin();
-  radio.setPALevel(RF24_PA_LOW);
-  radio.setChannel(110);
-  radio.openReadingPipe(1, addresses[nodeNum-1]);
-  radio.startListening();
-  Serial.println(1);
-  Serial.println("reciver..hiii");
-
-  pinMode(17, OUTPUT);
-
 }
 long TimeRun = millis();
 void loop()
@@ -209,26 +188,6 @@ void loop()
     //  Serial.print("  ");
     Serial.println(Uheading);//NeededVelocityLeftWheelMS);
     }*/
-if ( radio.available())
-  {
-    while (radio.available())
-    {
-      radio.read( &dataReceived, sizeof(dataReceived) );
-    }
-    radio.stopListening();
-    Serial.print("Data received = ");
-    Serial.println(dataReceived);
-    radio.startListening();
-  }
-  if(dataReceived==100&&flag){
-    flag = 0;
-    ton=millis();
-}
-  if(millis()-ton<5000 &&flag==0){
-    digitalWrite(7,HIGH);
-  }else
-  digitalWrite(7,LOW);
-
   while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 1)
   {
     NeededVelocityLeftWheelMS = 0.5;
@@ -424,3 +383,4 @@ void yaw()
   thetaZ = thetaZ + omegaZ * (dty / 1000000);
   RealAngle = thetaZ ;
 }
+ 
