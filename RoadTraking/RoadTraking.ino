@@ -204,7 +204,7 @@ void loop()
        Serial.print("  ");
        Serial.println((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
   }
-  while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 3)
+  while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 3.5)
   {NeededAngle = -45;
        Serial.print((PulseCounterLeft + PulseCounterRight) / 2);
        Serial.print("  ");
@@ -212,26 +212,43 @@ void loop()
   
     //NeededAngle = -45;
   }
-  NeededAngle = 90;
-  while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 5)
-  {
+//  NeededAngle = 90;
+  while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 6)
+  {NeededAngle = 90;
+       Serial.print((PulseCounterLeft + PulseCounterRight) / 2);
+       Serial.print("  ");
+       Serial.println((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
+  
     //    NeededAngle = 90;
   }
   NeededAngle = 180;
   while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 10)
-  {
+  {NeededAngle = 180;
+       Serial.print((PulseCounterLeft + PulseCounterRight) / 2);
+       Serial.print("  ");
+       Serial.println((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
+  
     // NeededAngle = 180;
   }
   NeededAngle = 270;
   while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 12)
   {
+    NeededAngle = 270;
+       Serial.print((PulseCounterLeft + PulseCounterRight) / 2);
+       Serial.print("  ");
+       Serial.println((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
+  
     //    NeededAngle = 270;
   }
   NeededAngle = 360;
 
-  while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 12.2)
-  {
+  while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 12.5)
+  { 
     NeededAngle = 360;
+       Serial.print((PulseCounterLeft + PulseCounterRight) / 2);
+       Serial.print("  ");
+       Serial.println((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
+  
     TimeRun = millis();
   }
 
@@ -246,7 +263,7 @@ void loop()
   analogWrite(leftMotorGND, LOW);
   off = 1;
 }
-void PidLeft()
+ void PidLeft()
 { if (!off) {
     ErrorLeft = NeededVelocityLeftWheelMS - VelocityLeftWheelMS;
     ILeft = (ILeft + ErrorLeft * 0.001) * (NeededVelocityLeftWheelMS != 0);
