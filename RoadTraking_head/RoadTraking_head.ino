@@ -1,5 +1,5 @@
 /**road traking head
-transmiter 
+  transmiter
 */
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -17,11 +17,11 @@ transmiter
 MPU9250 Imu(Wire, 0x68);
 int status;
 
-RF24 radio(4,3);
+RF24 radio(4, 3);
 int dataTransmitted;
-uint8_t addresses[][6] = {"1Node","2Node"};
+uint8_t addresses[][6] = {"1Node", "2Node"};
 int flag = 1;
-int flagstart=0;
+int flagstart = 0;
 // EEPROM buffer and variables to load accel and mag bias
 // and scale factors from CalibrateMPU9250.ino
 bool off = 0;
@@ -204,67 +204,69 @@ void loop()
     //  Serial.print("  ");
     Serial.println(Uheading);//NeededVelocityLeftWheelMS);
     }*/
-  if(flag){
+  if (flag) {
     delay(10000);
-    flag=0;
-    flagstart=1;
-    }
-   if(flagstart){
+    flag = 0;
+    flagstart = 1;
+  }
+  if (flagstart) {
 
-     radio.openWritingPipe(addresses[0]);
-        radio.stopListening();
+    radio.openWritingPipe(addresses[0]);
+    radio.stopListening();
 
-      dataTransmitted = 100;
-      radio.write( &dataTransmitted, sizeof(dataTransmitted) );
-      delay(400);
-      Serial.println(dataTransmitted);
+    dataTransmitted = 100;
+    radio.write( &dataTransmitted, sizeof(dataTransmitted) );
+    Serial.println(dataTransmitted);
   }
 
   while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 1)
   {
     NeededVelocityLeftWheelMS = 0.5;
-      NeededVelocityRightWheelMS = 0.5;
-      Serial.print((PulseCounterLeft + PulseCounterRight) / 2);
-      Serial.print("  ");
-      Serial.println((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
-    
+    NeededVelocityRightWheelMS = 0.5;
+    Serial.print(" Theta ");
+    Serial.print(RealAngle);
+    Serial.print(" X ");
+    Serial.println(sin(RealAngle / (180.0f / PI)) * (((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
+    Serial.print(" Y ");
+    Serial.println(cos(RealAngle / (180.0f / PI)) * (((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
+
   }
 
   while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 2)
-  {  NeededAngle = 45;
-       Serial.print((PulseCounterLeft + PulseCounterRight) / 2);
-       Serial.print("  ");
-       Serial.println((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
+  { NeededAngle = 45;
+    Serial.print((PulseCounterLeft + PulseCounterRight) / 2);
+    Serial.print("  ");
+    Serial.println((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
   }
   while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 3.5)
-  {NeededAngle = -45;
-       Serial.print((PulseCounterLeft + PulseCounterRight) / 2);
-       Serial.print("  ");
-       Serial.println((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
+  { NeededAngle = -45;
+    Serial.print((PulseCounterLeft + PulseCounterRight) / 2);
+    Serial.print("  ");
+    Serial.println((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
     //NeededAngle = -45;
   }
- /* NeededAngle = 90;
+  /* NeededAngle = 90;
+    while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 5)
+    {
+     //    NeededAngle = 90;
+    }
+    NeededAngle = 180;
+    while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 10)
+    {
+     // NeededAngle = 180;
+    }
+    NeededAngle = 270;
+    while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 12)
+    {
+     //    NeededAngle = 270;
+    }
+    NeededAngle = 360;
+  */
   while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 5)
-  {
-    //    NeededAngle = 90;
-  }
-  NeededAngle = 180;
-  while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 10)
-  {
-    // NeededAngle = 180;
-  }
-  NeededAngle = 270;
-  while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 12)
-  {
-    //    NeededAngle = 270;
-  }
-  NeededAngle = 360;
-*/
-  while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 12.2)
-  {NeededAngle = 0;
-       Serial.print((PulseCounterLeft + PulseCounterRight) / 2);
-       Serial.print("  ");
-       Serial.println((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
+  { NeededAngle = 0;
+    Serial.print((PulseCounterLeft + PulseCounterRight) / 2);
+    Serial.print("  ");
+    Serial.println((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
     TimeRun = millis();
   }
 
