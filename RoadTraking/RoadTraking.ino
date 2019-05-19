@@ -190,12 +190,12 @@ void loop()
     }*/
   while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 1)
   {
-    /*NeededVelocityLeftWheelMS = 0.5;
+    NeededVelocityLeftWheelMS = 0.5;
       NeededVelocityRightWheelMS = 0.5;
       Serial.print((PulseCounterLeft + PulseCounterRight) / 2);
       Serial.print("  ");
       Serial.println((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
-    */
+    
   }
 
   while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 2)
