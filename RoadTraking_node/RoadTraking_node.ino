@@ -246,7 +246,7 @@ void loop()
     Serial.print("  ");
     Serial.println((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
   }
-  while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 3.5 + UnitNumber)
+  while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 3.5 )
   { NeededAngle = -45;
     Serial.print((PulseCounterLeft + PulseCounterRight) / 2);
     Serial.print("  ");
