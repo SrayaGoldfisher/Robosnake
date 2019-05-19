@@ -1,14 +1,9 @@
-/**road traking head
-transmiter 
-*/
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <Wire.h>
 #include <SPI.h>
 #include "MPU9250.h"
 #include "EEPROM.h"
-#include "RF24.h"
-
 
 #define rightMotor 5
 #define rightMotorGND 6
@@ -17,11 +12,6 @@ transmiter
 MPU9250 Imu(Wire, 0x68);
 int status;
 
-RF24 radio(4,3);
-int dataTransmitted;
-uint8_t addresses[][6] = {"1Node","2Node"};
-int flag = 1;
-int flagstart=0;
 // EEPROM buffer and variables to load accel and mag bias
 // and scale factors from CalibrateMPU9250.ino
 bool off = 0;
@@ -184,12 +174,6 @@ void setup() {
   Serial.println("start");
   Serial1.println("start");
 
-  radio.begin();
-  radio.setPALevel(RF24_PA_LOW);
-  radio.setChannel(110);
-  radio.openWritingPipe(addresses[0]);
-  Serial.println(F("transmiter.."));
-  radio.stopListening();
 }
 long TimeRun = millis();
 void loop()
@@ -204,22 +188,6 @@ void loop()
     //  Serial.print("  ");
     Serial.println(Uheading);//NeededVelocityLeftWheelMS);
     }*/
-  if(flag){
-    delay(10000);
-    flag=0;
-    flagstart=1;
-    }
-   if(flagstart){
-
-     radio.openWritingPipe(addresses[0]);
-        radio.stopListening();
-
-      dataTransmitted = 100;
-      radio.write( &dataTransmitted, sizeof(dataTransmitted) );
-      delay(400);
-      Serial.println(dataTransmitted);
-  }
-
   while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 1)
   {
     NeededVelocityLeftWheelMS = 0.5;
@@ -415,3 +383,4 @@ void yaw()
   thetaZ = thetaZ + omegaZ * (dty / 1000000);
   RealAngle = thetaZ ;
 }
+ 
