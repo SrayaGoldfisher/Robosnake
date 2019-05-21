@@ -68,26 +68,26 @@ void keepMovingAhead() {
   analogWrite(leftMotorGND, 0);
 }
 
-void turn(float radiusOfObstacle, float angleOfTheTurn) {
+/*void turn(float radiusOfObstacle, float angleOfTheTurn) {
   timeOfDoingTurn = (radiusOfObstacle * angleOfTheTurn) / velocity;
   startTimeOfTheTurn = millis();
   while((millis() - startTimeOfTheTurn) > timeOfDoingTurn) {
-    rightMotorSpeed = velocity * (60 / (2 * PI() * WHEEL_RADIUS));
-    leftMotorSpeed = velocity;
+    rightMotorSpeed = 0.25*velocity * (60 / (2 ve* PI() * WHEEL_RADIUS));
+    leftMotorSpeed = 0.25*velocity;
     analogWrite(rightMotor, rightMotorSpeed);
     analogWrite(rightMotorGND, 0);
     analogWrite(leftMotor, leftMotorSpeed);
     analogWrite(leftMotorGND, 0);    
   }
-}
+}*/
 
 void navigationOfTheHead(float distanceFromObstacle, float rangeMotionToTheRight, float rangeMotionToTheLeft) {
   if(distanceFromObstacle > (UNIT_LENGTH + SAFETY_RANGE)) {
     keepMovingAhead();
   }
-  else {
+  /*else {
     turn(, );
-  }
+  }*/
 }
 
 void loop() {
@@ -104,6 +104,7 @@ void loop() {
   distanceFromObstacleOfCenterSensor = Sensor1.readRangeContinuousMillimeters();
   distanceFromObstacleOfLeftSensor = Sensor2.readRangeContinuousMillimeters();
   distanceFromObstacleOfRightSensor = Sensor4.readRangeContinuousMillimeters();
-  
-  navigationOfTheHead(distanceFromObstacleOfCenterSensor, distanceFromObstacleOfRightSensor, distanceFromObstacleOfLeftSensor);
+  analogWrite(rightMotor, 255);
+  analogWrite(rightMotorGND, 0);
+  //navigationOfTheHead(distanceFromObstacleOfCenterSensor, distanceFromObstacleOfRightSensor, distanceFromObstacleOfLeftSensor);
 }
