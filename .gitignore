@@ -6,3 +6,6 @@
 .vscode/ipch/6bad0ead6180a43f/NAVIGATING_THE_HEAD_UNIT.ipch
 .vscode/ipch/feb3f075718be0d1/mmap_address.bin
 .vscode/ipch/feb3f075718be0d1/WIRING_ANALOG.ipch
+*.bin
+*.ipch
+RoadTraking/RoadTraking.ino

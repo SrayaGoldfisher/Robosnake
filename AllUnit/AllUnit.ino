@@ -1,9 +1,11 @@
+#include "uNavAHRS.h"
+#include "MPU9250.h"
+#include "EEPROM.h"
 #include <Queue.h>
-
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <Wire.h>
-#include <SPI.h>
+
 #define UnitNumber 1
 
 #define rightMotor 5
@@ -205,4 +207,3 @@ void en2_1() {
 
   }
 }
-

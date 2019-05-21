@@ -133,38 +133,9 @@ void turn()
 
 void loop()
 {
-  distanceFromObstacleOfCenterSensor = Sensor1.readRangeContinuousMillimeters();
-  distanceFromObstacleOfLeftSensor = Sensor2.readRangeContinuousMillimeters();
-  distanceFromObstacleOfRightSensor = Sensor4.readRangeContinuousMillimeters();
-Serial.print(distanceFromObstacleOfCenterSensor);
-Serial.print(' ');
-Serial.print(distanceFromObstacleOfLeftSensor);
-Serial.print(' ');
-Serial.println(distanceFromObstacleOfRightSensor);
-  if (distanceFromObstacleOfCenterSensor > (UNIT_LENGTH + SAFETY_RANGE) * 1000)
-  {
-    keepMovingAhead();
-  }
-  else
-  {
-    turn();
-  }
-  if ( Serial1.available()) {
-    p = Serial1.read();
 
-    if (p == 'l')
-    {
-      while (!Serial1.available());
-      veloln = Serial1.parseFloat();
-    }
 
-    if (p == 'r')
-    {
-      while (!Serial1.available());
-      velorn = Serial1.parseFloat();
-    }
-  }
-
+  
 
   if (millis() - t0l > 1)
   {
