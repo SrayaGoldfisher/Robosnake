@@ -25,9 +25,9 @@ float hxb, hxs, hyb, hys, hzb, hzs;
 #define Sensor2_newAddress 43
 #define Sensor4_newAddress 44
 //Timer Interrupts PID Control
-IntervalTimer PidTimerLeft;
-IntervalTimer PidTimerRight;
-IntervalTimer PidTimerAngle;
+//IntervalTimer PidTimerLeft;
+//IntervalTimer PidTimerRight;
+//IntervalTimer PidTimerAngle;
 
 bool IsTurn = 0;
 long Timeofdetaction = 0;
