@@ -10,10 +10,10 @@
 #include "RF24.h"
 
 
-#define rightMotor 5
-#define rightMotorGND 6
-#define leftMotor 20
-#define leftMotorGND 21
+#define rightMotor 6
+#define rightMotorGND 5
+#define leftMotor 21
+#define leftMotorGND 20
 MPU9250 Imu(Wire, 0x68);
 int status;
 
@@ -111,7 +111,7 @@ float thetaZ = 0;
 void setup() {
   Serial.begin(115200);
   Serial1.begin(115200);
-
+  Serial.println("hello world");
   Wire.begin();
   Wire.setClock(3000000);
 
@@ -205,7 +205,7 @@ void loop()
     Serial.println(Uheading);//NeededVelocityLeftWheelMS);
     }*/
   if (flag) {
-    delay(10000);
+    delay(1000);
     flag = 0;
     flagstart = 1;
   }
@@ -219,24 +219,29 @@ void loop()
     Serial.println(dataTransmitted);
   }
 
-  while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 1)
+  while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 1300)
   {
-    NeededVelocityLeftWheelMS = 0.5;
-    NeededVelocityRightWheelMS = 0.5;
-    Serial.print(" Theta ");
-    Serial.print(RealAngle);
-    Serial.print(" X ");
-    Serial.println(sin(RealAngle / (180.0f / PI)) * (((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
-    Serial.print(" Y ");
-    Serial.println(cos(RealAngle / (180.0f / PI)) * (((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
+    NeededVelocityLeftWheelMS = 0.6;
+    NeededVelocityRightWheelMS = 0.6;
+    Serial.print(" R ");
+    Serial.print(VelocityRightWheelMS);
+    Serial.print(" L ");
+     Serial.println(VelocityLeftWheelMS);
+    //Serial.println(sin(RealAngle / (180.0f / PI)) * (((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
+   // Serial.print(" Y ");
+//Serial.println(cos(RealAngle / (180.0f / PI)) * (((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
 
   }
 
   while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 2)
   { NeededAngle = 45;
-    Serial.print((PulseCounterLeft + PulseCounterRight) / 2);
-    Serial.print("  ");
-    Serial.println((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
+  Serial.print(" R ");
+    Serial.print(VelocityRightWheelMS);
+    Serial.print(" L ");
+     Serial.println(VelocityLeftWheelMS);
+//    Serial.print((PulseCounterLeft + PulseCounterRight) / 2);
+//    Serial.print("  ");
+//    Serial.println((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
   }
   while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 3.5)
   { NeededAngle = -45;
@@ -366,15 +371,15 @@ void en2_1() {
   dt2 =  micros() - t02;
   t02 = micros();
   if (!digitalRead(23))
-  { PulseCounterLeft--;
+  { PulseCounterLeft++;
 
-    VelocityLeftWheelMS = -1567.9963333424992990544387652732 / dt2;
+    VelocityLeftWheelMS = 1567.9963333424992990544387652732 / dt2;
 
   }
   if (digitalRead(23))
 
-  { PulseCounterLeft++;
-    VelocityLeftWheelMS = 1567.9963333424992990544387652732 / dt2;
+  { PulseCounterLeft--;
+    VelocityLeftWheelMS = -1567.9963333424992990544387652732 / dt2;
 
   }
 }

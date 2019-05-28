@@ -209,7 +209,7 @@ void loop()
     //  Serial.print("  ");
     Serial.println(Uheading);//NeededVelocityLeftWheelMS);
     }*/
-  while (!radio.available());
+ /* while (!radio.available());
   if ( radio.available())
   {
     while (radio.available())
@@ -221,16 +221,21 @@ void loop()
     Serial.println(dataReceived);
     radio.startListening();
   }
-  
+  */
 
-  while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 1 + UnitNumber)
+  while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 130 + UnitNumber)
   {
     NeededVelocityLeftWheelMS = 0.5;
     NeededVelocityRightWheelMS = 0.5;
+     Serial.print(" R ");
+    Serial.print(VelocityRightWheelMS);
+    Serial.print(" L ");
+     Serial.println(VelocityLeftWheelMS);
+    /*
     Serial.print((PulseCounterLeft + PulseCounterRight) / 2);
     Serial.print("  ");
     Serial.println((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934));
-
+*/
   }
 
   while ((((PulseCounterLeft + PulseCounterRight) / 2) / 637.7565934) < 2 + UnitNumber)
