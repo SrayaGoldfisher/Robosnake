@@ -228,9 +228,9 @@ void loop()
     NeededVelocityLeftWheelMS = 0.5;
     NeededVelocityRightWheelMS = 0.5;
      Serial.print(" R ");
-    Serial.print(VelocityRightWheelMS);
+    Serial.print(PulseCounterLeft);
     Serial.print(" L ");
-     Serial.println(VelocityLeftWheelMS);
+     Serial.println(PulseCounterRight);
     /*
     Serial.print((PulseCounterLeft + PulseCounterRight) / 2);
     Serial.print("  ");
