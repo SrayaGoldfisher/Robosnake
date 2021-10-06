@@ -4,7 +4,7 @@ The project addresses the need to transport long pipes in various winding routes
 Its main advantage is in the modularity capability - the fit to the length of the desired pipe.
 
 
-<img src="https://lh3.googleusercontent.com/HYr7ukto8vmLUfCddjiCdwLU4TUGwSmAhyaGC-eBcEZktCle6nsJA5fsfoA0eZJHxVnJX9mvTCuCKXWebQ7QBInf_n8wGWK1X1pV1NsO3E-LraTz6bsUlfG6SDOSQ9aJBGgV_TkweTeHKkAUYdfJKldbeDYTsgsL3FHoTRHGZOm8EQCkBQVh3py08AjAXm892CSHwpy_w6saILeToflX96PKaO0CUbPFiKBiRcL45Nxkqn36LjZt-7yO66MoE_JEwSPRLH8g7aO_vJWXfvDcfEAdIQKVrQshHsG5wbqecQRm7IAU9CukriIMFkokvXZFTsAIfYZR06vdLoOjINQEVufDyGjl7ZZBWB3iV9sFVONJHeFp3BLqpQDkLr-BN_evWRcUH9p2kQUxVrlreQVVmsR9Ong5WiGpTy91Xg9PnJucg1s_7ZQYd084KTcc4_r-FZCAefsW7k6nzPBPHxRp6oHrwcgY9gS84C2VrhrkDBl8UAEAg6vUJAwv71flO86SEFZg1pnrE8IoKYmINyVnmuGuHXxBf1xPNRn3PqUvBX_exW4Hj4j4mzZDncf_3QZK8pRZCpEkKn3CC0VF3M3T0aeCu-bu4t6asVbOmpwuvGjp8UUSAXDsCe8JEnV24oLli6VsbY58Hz35lnB2jZUaIkk2eIKfTlCHp0ZKK6VqGLye9NMjoODaZLrYD10_iwlygI4-7x5_IRPwgjH7r8tPjqT4=w1292-h970-no?authuser=0" alt="drawing" width="300"/>
+<img src="https://i.pinimg.com/originals/bc/40/46/bc40469870964b4e822fe3d6f1b79422.jpg" alt="drawing" width="300"/>
 
 
 ## The management and control of the system using a [Teensy 3.2] controller
